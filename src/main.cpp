@@ -7,6 +7,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "helpers.h"
 #include "json.hpp"
+#include "pathplanner.h"
 
 // for convenience
 using nlohmann::json;
@@ -22,6 +23,8 @@ int main() {
   vector<double> map_waypoints_s;
   vector<double> map_waypoints_dx;
   vector<double> map_waypoints_dy;
+  
+  
 
   // Waypoint map to read from
   string map_file_ = "../data/highway_map.csv";
@@ -29,8 +32,9 @@ int main() {
   double max_s = 6945.554;
 
   std::ifstream in_map_(map_file_.c_str(), std::ifstream::in);
-
+	
   string line;
+  
   while (getline(in_map_, line)) {
     std::istringstream iss(line);
     double x;
@@ -86,7 +90,7 @@ int main() {
 
           // Sensor Fusion Data, a list of all other cars on the same side 
           //   of the road.
-          auto sensor_fusion = j[1]["sensor_fusion"];
+          vector<vector<double>>  sensor_fusion = j[1]["sensor_fusion"];
 
           json msgJson;
 
@@ -97,7 +101,102 @@ int main() {
            * TODO: define a path made up of (x,y) points that the car will visit
            *   sequentially every .02 seconds
            */
+          int prev_size=previous_path_x.size();
 
+          //Take car s to end of planned path
+          if(prev_size >2)
+          {
+            car_s=end_path_s;
+            car_d=end_path_d;
+          }
+          
+          //Find future state
+          int targetstate=target_state(car_s, end_path_d, car_speed, sensor_fusion, prev_size);
+          std::cout<< "target State  " << targetstate << std::endl;
+          //Determine target lane from target state
+          bool too_close=false;
+          int targetLane,prevTargetLane,finalLane,counter;
+          int lane=getlanenumber(car_d);
+          switch(targetstate) {
+            case 0:
+              targetLane=lane;
+              too_close=true;
+              break;
+            case 1:
+              targetLane=lane;
+              break;
+            case 2:
+              targetLane=lane+1;
+              break;
+            case 3:
+              targetLane=lane-1;
+              break;
+            case 9:
+              targetLane=lane;
+              too_close=true;
+              break;
+          }
+          
+          /*if(prevTargetLane != targetLane)
+          {
+            counter=0;
+          }
+          else
+          {
+            if(counter < 5)
+            {
+              ++counter ;
+              finalLane=lane;
+            }
+            else
+            {
+              finalLane=targetLane;
+            }
+          }
+          prevTargetLane = targetLane;*/
+              
+          std::cout<< "target lane " << targetLane << std::endl;
+          //Adjust speed based on target state
+          double ref_vel;
+          if (too_close) {
+            
+            if(targetstate==9){
+              ref_vel -=0.5;
+            }else{
+              ref_vel -=0.224;
+            }
+          }
+          else {
+            ref_vel +=0.224;
+          }
+          
+          if (ref_vel > 49.7) {
+            ref_vel=49.7;
+          }
+          else if (ref_vel < 0.01) {
+            ref_vel=0.01;
+          }
+          
+          auto trajectory=create_trajectory(targetLane, map_waypoints_s, map_waypoints_x, map_waypoints_y,
+                            previous_path_x, previous_path_y, car_x, car_y, car_s, car_yaw,  ref_vel);
+
+          
+          //Add future points to remaining spaces in 50 points path
+          int j=0;
+          vector<double> x=std::get<0>(trajectory);
+          vector<double> y=std::get<1>(trajectory);
+          for(int i=0; i< 50;++i)
+          {
+            
+            if (i < prev_size){
+              next_x_vals.push_back(previous_path_x[i]);
+              next_y_vals.push_back(previous_path_y[i]);
+            } else {  
+              next_x_vals.push_back(x[j]);
+              next_y_vals.push_back(y[j]);
+              ++j;
+            }
+          }
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
