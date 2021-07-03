@@ -120,8 +120,6 @@ double laneChangeCost(double car_s, double car_d, double car_v, int finallane,
       std::cout<< "lcgap  " << gap << std::endl;
       //If car really behind or too ahead thens assign  min cost. 
       //Min cost for lane change is 0.25 and not 0 to discourage lane change if not needed
-      
-   
   
      if (( gap <10) && (gap >-10)) {
        // Gap is too less than cost is maximum i.e. 1 
@@ -142,60 +140,7 @@ double laneChangeCost(double car_s, double car_d, double car_v, int finallane,
     }
   }
   
-  
-  
-  /*double car_s0=car_s-(0.02*prev_size*car_v/2.24);
-  //Loop through each sensor fusion measurement 
-  for(int i=0; i< sensorFusion.size(); ++i) {
-    // d coordinate for sensed car
-    float d=sensorFusion[i][6];
-    double check_s0=sensorFusion[i][5];
-    
-    double tempcost;
-    
-    //final lane is lane number after lane change if opted
-    if (((d > (finallane*4)-3)  && (d < ((finallane+1)*4)+3)) &&
-        ((check_s0 > car_s0) && (check_s0 < car_s))){
-      tempcost=0.9;
-      std::cout << "object in lane change" << std::endl;
-    }
-    
-    else if((d > (finallane*4))  && (d < ((finallane+1)*4))) {
-      
-      double vx=sensorFusion[i][3];
-      double vy=sensorFusion[i][4];
-      double check_speed= sqrt(vx*vx + vy*vy);
-      double check_s=sensorFusion[i][5];
-      
-      //Estimates cars s coordind at end of path planned previously
-      check_s+= (0.02*prev_size*check_speed);
-      
-      double gap= check_s - car_s;
-      std::cout<< "lcgap  " << gap << std::endl;
-      //If car really behind or too ahead thens assign  min cost. 
-      //Min cost for lane change is 0.25 and not 0 to discourage lane change if not needed
-      
-   
-  
-     if (( gap <20) && (gap >-20)) {
-       // Gap is too less than cost is maximum i.e. 1 
-       tempcost=1; 
-      } 
-      else if((gap >100) || (gap < -20)){
-        tempcost=0.2;
-      }
-      else {
-        //Cost function in region
-        tempcost= 1.2-exp(-pow((25/gap),2));
-      }
-      
-      // Take highest cost
-      if(tempcost >cost) {
-        cost=tempcost;
-      }
-    }
-  }*/
-  
+
   return cost+ drivingcost;
 }
 
@@ -226,12 +171,12 @@ vector<string> determinefutureTrajectory(int lane) {
 
 
 /* Determing Target state. Target state has for possible states
-0- keep on same lane and slow down
+0- Keep on same lane and slow down
 1- Keep on same lane and maintain speed
 2- Change lane to right
 3- Change lane to left
 
-9- emergency braking
+9- Emergency braking
 */
 int target_state(double car_s, double car_d, double car_vel, 
                 vector<vector<double>> &sensorFusion, int prev_size) 
