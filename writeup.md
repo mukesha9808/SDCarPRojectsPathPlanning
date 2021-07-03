@@ -13,7 +13,7 @@ The goals / steps of this project are the following:
 ---
 [//]: # (Image References)
 
-[image1]: ./output_images/Result.jpg "Higway driving performance"
+[image1]: ./output_images/Result.JPG "Higway driving performance"
 
 
 
@@ -58,6 +58,7 @@ If gap between cars at end path is narrow (20m or less) then collision risk is v
 * Cost for vehicle is region
 I have defined cost function for car in horizon based on gap between sensed cars and ego car at end path. Cost function can be defined as
 $$ Cost_{KeepLane} = 1 - e^{-(\frac{25}{Gap})^2} $$
+![formula](https://render.githubusercontent.com/render/math?math=Cost_{KeepLane} = 1 - e^{-(\frac{25}{Gap})^2}
 
 ###### 2.1.2 Bias cost for lateral collision
 I have taken into consideration that cost should be higher if any vehicle from adjacent lane is coming closer to change lane. I defined this as bias cost and add into cost estmeted above. This cost is estimated using gap between d-positions.
