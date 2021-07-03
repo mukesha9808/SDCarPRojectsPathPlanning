@@ -58,7 +58,7 @@ If gap between cars at end path is narrow (20m or less) then collision risk is v
 * Cost for vehicle is region
 I have defined cost function for car in horizon based on gap between sensed cars and ego car at end path. Cost function can be defined as
 $$ Cost_{KeepLane} = 1 - e^{-(\frac{25}{Gap})^2} $$
-![formula](https://render.githubusercontent.com/render/math?math=Cost_{KeepLane} = 1 - e^{-(\frac{25}{Gap})^2}
+
 
 ###### 2.1.2 Bias cost for lateral collision
 I have taken into consideration that cost should be higher if any vehicle from adjacent lane is coming closer to change lane. I defined this as bias cost and add into cost estmeted above. This cost is estimated using gap between d-positions.
@@ -112,7 +112,7 @@ To create spline path, 5 spaced points are taken. First two points are taken fro
 ##### 4.2 Transform points on vehicle frame
 Points are transformed using shift and rotation to dtermine equally spaced points
 
-##### 4.3 Craete spline
+##### 4.3 Create spline
 Trasformed points are fed into spline function and x,y coordinates are determined at equal spacing in 30m distance. Number of points will depend on vehicle speed. If speed is high points will be less and number of points will be higher when speed is less
 
 ##### 4.4 Revert to global frame
